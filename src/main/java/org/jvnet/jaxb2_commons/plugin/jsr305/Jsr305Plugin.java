@@ -48,7 +48,7 @@ public class Jsr305Plugin extends Plugin {
         for (ClassOutline classOutline : outline.getClasses()) {
             for (JFieldVar field : classOutline.implClass.fields().values()) {
                 PropertyInfo propertyInfo = extractPropertyInfo(field);
-                String propertyName = getPropertyName(propertyInfo.name);
+                String propertyName = getPropertyName(propertyInfo.name, opt);
 
                 for (JMethod method : classOutline.implClass.methods()) {
                     if (isGetter(method, propertyName)) {
@@ -115,8 +115,12 @@ public class Jsr305Plugin extends Plugin {
         return Boolean.valueOf(writer.toString());
     }
 
-    private String getPropertyName(String name) {
-        return NameConverter.standard.toPropertyName(name);
+    private String getPropertyName(String name, Options opt) {
+        NameConverter nameConverter = opt.getNameConverter();
+        if (nameConverter == null) {
+            nameConverter = NameConverter.standard;
+        }
+        return nameConverter.toPropertyName(name);
     }
 
     private boolean isGetter(JMethod method, String propertyName) {
